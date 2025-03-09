@@ -127,12 +127,12 @@ namespace big
 					}
 
 					auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-					auto vehicle = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, true, true);
+					auto vehicle = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, true, true, false);
 					
 					if (*g_pointers->m_is_session_started)
 					{
 						DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
-					}
+			}
 
 					STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
 				});
@@ -156,7 +156,7 @@ namespace big
 	{
 		if (g_gui.m_opened)
 		{
-			CONTROLS::DISABLE_ALL_CONTROL_ACTIONS(0);
+			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 		}
 	}
 

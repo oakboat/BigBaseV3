@@ -22,16 +22,17 @@ namespace big
 
 		rage::scrNativeRegistrationTable *m_native_registration_table{};
 		functions::get_native_handler_t m_get_native_handler{};
-		functions::fix_vectors_t m_fix_vectors{};
+		functions::init_native_tables_t m_init_native_tables;
+		/*functions::fix_vectors_t m_fix_vectors{};*/
 
 		rage::atArray<GtaThread*> *m_script_threads{};
 		rage::scrProgramTable *m_script_program_table{};
 		functions::run_script_threads_t m_run_script_threads{};
 		std::int64_t **m_script_globals{};
 
-		CGameScriptHandlerMgr **m_script_handler_mgr{};
+		/*CGameScriptHandlerMgr **m_script_handler_mgr{};*/
 
-		IDXGISwapChain **m_swapchain{};
+		/*IDXGISwapChain **m_swapchain{};*/
 	};
 
 	inline pointers *g_pointers{};

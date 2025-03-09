@@ -38,8 +38,23 @@ namespace big::gta_util
 		auto tls_ctx = rage::tlsContext::get();
 		for (auto thread : *g_pointers->m_script_threads)
 		{
-			if (!thread || !thread->m_context.m_thread_id || thread->m_context.m_script_hash != script_hash)
+			if (!thread || !thread->m_context.m_thread_id || *(rage::joaat_t*)((char*)thread + 16) != script_hash)
 				continue;
+
+		/*	bool flag = true;
+			for (size_t i = 8; i < 0x100; i+=4)
+			{
+				if (*(rage::joaat_t*)((char*)thread + i) == script_hash)
+				{
+					flag = false;
+					LOG_INFO("HHHHHHHHHHHHH {}", i);
+					break;
+				}
+			}
+			if (flag)
+			{
+				continue;
+			}*/
 
 			auto og_thread = tls_ctx->m_script_thread;
 

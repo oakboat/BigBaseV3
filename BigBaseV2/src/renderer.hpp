@@ -10,8 +10,8 @@ namespace big
 		explicit renderer();
 		~renderer();
 
-		void on_present();
-
+		void on_present(IDXGISwapChain3* pSwapChain);
+		void on_ExecuteCommandLists(ID3D12CommandQueue* queue);
 		void pre_reset();
 		void post_reset();
 
@@ -20,9 +20,21 @@ namespace big
 		ImFont *m_font;
 		ImFont *m_monospace_font;
 	private:
-		comptr<IDXGISwapChain> m_dxgi_swapchain;
-		comptr<ID3D11Device> m_d3d_device;
-		comptr<ID3D11DeviceContext> m_d3d_device_context;
+		ID3D12Device* Device = nullptr;
+		ID3D12DescriptorHeap* DescriptorHeapBackBuffers = nullptr;
+		ID3D12DescriptorHeap* DescriptorHeapImGuiRender = nullptr;
+		ID3D12GraphicsCommandList* CommandList = nullptr;
+		ID3D12CommandQueue* CommandQueue = nullptr;
+
+		struct _FrameContext {
+			ID3D12CommandAllocator* CommandAllocator;
+			ID3D12Resource* Resource;
+			D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHandle;
+		};
+
+		uint64_t BuffersCounts = -1;
+		_FrameContext* FrameContext = nullptr;
+		bool ImGui_Initialised = false;
 	};
 
 	inline renderer *g_renderer{};

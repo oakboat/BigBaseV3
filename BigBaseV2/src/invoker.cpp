@@ -14,18 +14,63 @@ namespace big
 
 	void native_invoker::cache_handlers()
 	{
-		for (const rage::scrNativeMapping &mapping : g_crossmap)
+		struct HashCache
 		{
-			rage::scrNativeHandler handler = g_pointers->m_get_native_handler(
-				g_pointers->m_native_registration_table, mapping.second);
+			char pad0[0x2c];
+			uint32_t count;
+			char pad1[0x10];
+			uint64_t * data;
+		};
+		HashCache hashcache{};
+		hashcache.count = sizeof(g_crossmap) / sizeof(rage::scrNativeMapping);
+		hashcache.data = new uint64_t[hashcache.count];
 
-			m_handler_cache.emplace(mapping.first, handler);
+		for (size_t i = 0; i < hashcache.count; i++)
+		{
+			auto& mapping = g_crossmap[i];
+			hashcache.data[i] = mapping.second;
 		}
+
+		g_pointers->m_init_native_tables(&hashcache);
+
+		for (size_t i = 0; i < hashcache.count; i++)
+		{
+			auto& mapping = g_crossmap[i];
+			m_handler_cache.emplace(mapping.first, reinterpret_cast<rage::scrNativeHandler>(hashcache.data[i]));
+		}
+
+		delete[] hashcache.data;
 	}
 
 	void native_invoker::begin_call()
 	{
 		m_call_context.reset();
+	}
+
+	int64_t fix_vectors(void* a1) {
+		auto base = reinterpret_cast<uintptr_t>(a1);
+		int64_t v2;
+		int64_t v3;
+		int64_t result = 0;
+
+		while (*reinterpret_cast<int32_t*>(base + 24)) {
+			--(*reinterpret_cast<int32_t*>(base + 24));
+
+			int index = *reinterpret_cast<int32_t*>(base + 24);
+			int64_t ptr = *reinterpret_cast<int64_t*>(base + 8LL * index + 32);
+
+			*reinterpret_cast<int32_t*>(ptr) = *reinterpret_cast<int32_t*>(base + 16 * (index + 4));
+			*reinterpret_cast<int32_t*>(ptr + 8) = *reinterpret_cast<int32_t*>(base + 16LL * index + 68);
+
+			v2 = index;
+			v3 = *reinterpret_cast<int64_t*>(base + 8 * v2 + 32);
+			result = *reinterpret_cast<uint32_t*>(base + 16 * v2 + 72);
+
+			*reinterpret_cast<int32_t*>(v3 + 16) = static_cast<int32_t>(result);
+		}
+
+		--(*reinterpret_cast<int32_t*>(base + 24));
+		return result;
 	}
 
 	void native_invoker::end_call(rage::scrNativeHash hash)
@@ -37,7 +82,7 @@ namespace big
 			__try
 			{
 				handler(&m_call_context);
-				g_pointers->m_fix_vectors(&m_call_context);
+				fix_vectors(&m_call_context);
 			}
 			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
