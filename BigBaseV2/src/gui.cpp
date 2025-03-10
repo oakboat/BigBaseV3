@@ -10,15 +10,17 @@
 #include "pointers.hpp"
 #include "renderer.hpp"
 #include "script.hpp"
+#include "features.hpp"
 
 #include <imgui.h>
 #include <StackWalker.h>
+#include <script_global.hpp>
 
 namespace big
 {
 	void gui::dx_init()
 	{
-		auto &style = ImGui::GetStyle();
+		auto& style = ImGui::GetStyle();
 		style.WindowPadding = { 10.f, 10.f };
 		style.PopupRounding = 0.f;
 		style.FramePadding = { 8.f, 4.f };
@@ -43,7 +45,7 @@ namespace big
 		style.ButtonTextAlign = { 0.5f, 0.5f };
 		style.DisplaySafeAreaPadding = { 3.f, 3.f };
 
-		auto &colors = style.Colors;
+		auto& colors = style.Colors;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(1.00f, 0.90f, 0.19f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
@@ -94,49 +96,158 @@ namespace big
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 	}
 
+	
+
 	void gui::dx_on_tick()
 	{
 		if (ImGui::Begin("BigBaseV2"))
 		{
-			static bool demo_bool = true;
-			static int demo_int = 1;
-			static float demo_float = 1.f;
+			static int wanted_level = 0;
+			static bool godemode = false;
 
-			static const char *demo_combo[]
+			if (ImGui::Checkbox("Godmode", &godemode))
 			{
-				"One",
-				"Two",
-				"Three"
-			};
-			static int demo_combo_pos = 0;
+				features::set_godmode(godemode);
+			}
 
-			ImGui::Checkbox("Bool", &demo_bool);
-			ImGui::SliderInt("Int", &demo_int, 0, 10);
-			ImGui::SliderFloat("Float", &demo_float, 0.f, 10.f);
-			ImGui::Combo("Combo", &demo_combo_pos, demo_combo, sizeof(demo_combo) / sizeof(*demo_combo));
+			if (ImGui::SliderInt("Wanted level", &wanted_level, 0, 5))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						auto id = PLAYER::PLAYER_ID();
+						PLAYER::SET_PLAYER_WANTED_LEVEL(id, wanted_level, FALSE);
+						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(id, FALSE);
+					});
+			}
 
 			if (ImGui::Button("Spawn a vehicle"))
 			{
 				g_fiber_pool->queue_job([]
-				{
-					constexpr auto hash = RAGE_JOAAT("adder");
-					while (!STREAMING::HAS_MODEL_LOADED(hash))
 					{
-						STREAMING::REQUEST_MODEL(hash);
-						script::get_current()->yield();
-					}
+						constexpr auto hash = RAGE_JOAAT("adder");
+						while (!STREAMING::HAS_MODEL_LOADED(hash))
+						{
+							STREAMING::REQUEST_MODEL(hash);
+							script::get_current()->yield();
+						}
 
-					auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-					auto vehicle = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, true, true, false);
-					
-					if (*g_pointers->m_is_session_started)
-					{
-						DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
+						auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+						auto vehicle = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, true, true, false);
+
+						if (*g_pointers->m_is_session_started)
+						{
+							DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
+							auto networkId = NETWORK::VEH_TO_NET(vehicle);
+							if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(vehicle))
+								NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, TRUE);
+							VEHICLE::SET_VEHICLE_IS_STOLEN(vehicle, FALSE);
+						}
+
+						STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
+					});
 			}
 
-					STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
-				});
+			if (ImGui::Button("Teleport waypoint"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						Blip blip = HUD::GET_CLOSEST_BLIP_INFO_ID(8);
+						if (!HUD::DOES_BLIP_EXIST(blip)) return;
+						auto location = HUD::GET_BLIP_COORDS(blip);
+						constexpr float max_ground_check = 1000.f;
+						constexpr int max_attempts = 300;
+						float ground_z = location.z;
+						int current_attempts = 0;
+						bool found_ground;
+						float height;
+						do
+						{
+							found_ground = MISC::GET_GROUND_Z_FOR_3D_COORD(location.x, location.y, max_ground_check, &ground_z, FALSE, FALSE);
+							STREAMING::REQUEST_COLLISION_AT_COORD(location.x, location.y, location.z);
+
+							if (current_attempts % 10 == 0)
+							{
+								location.z += 25.f;
+							}
+
+							++current_attempts;
+
+							script::get_current()->yield();
+						} while (!found_ground && current_attempts < max_attempts);
+						if (!found_ground)
+						{
+							return;
+						}
+						if (WATER::GET_WATER_HEIGHT(location.x, location.y, location.z, &height))
+						{
+							location.z = height;
+						}
+						else
+						{
+							location.z = ground_z + 1.f;
+						}
+						PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
+					});
 			}
+
+			if (ImGui::Button("Teleport objective"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						Blip blip = HUD::GET_CLOSEST_BLIP_INFO_ID(1);
+						while (HUD::DOES_BLIP_EXIST(blip))
+						{
+							int blipColour = HUD::GET_BLIP_COLOUR(blip);
+							if (blipColour == 5 || blipColour == 60 || blipColour == 66)
+							{
+								auto location = HUD::GET_BLIP_COORDS(blip);
+								PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
+								script::get_current()->yield();
+							}
+							blip = HUD::GET_NEXT_BLIP_INFO_ID(1);
+						}
+					});
+			}
+
+			if (ImGui::Button("Heal"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						auto ped = PLAYER::PLAYER_PED_ID();
+						auto id = PLAYER::PLAYER_ID();
+						ENTITY::SET_ENTITY_HEALTH(ped, PED::GET_PED_MAX_HEALTH(ped), 0, 0);
+						PED::SET_PED_ARMOUR(ped, PLAYER::GET_PLAYER_MAX_ARMOUR(id));
+					});
+			}
+
+			if (ImGui::Button("Skip cutscene"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						CUTSCENE::STOP_CUTSCENE_IMMEDIATELY();
+					});
+			}
+
+			if (ImGui::Button("Apply stats file"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						features::apply_stats_file();
+					});
+			}
+
+			static char global[100]{ 0 };
+			static char value[100]{ 0 };
+			ImGui::InputText("Global index", global, IM_ARRAYSIZE(global), ImGuiInputTextFlags_CharsDecimal);
+			ImGui::InputText("Global value", value, IM_ARRAYSIZE(value), ImGuiInputTextFlags_CharsDecimal);
+			if (ImGui::Button("Set global"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						*big::script_global(atoi(global)).as<int*>() = atoi(value);
+					});
+			}
+
 
 			ImGui::Separator();
 

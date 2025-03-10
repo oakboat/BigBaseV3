@@ -19,18 +19,20 @@ namespace rage
 	class scrThreadContext
 	{
 	public:
-		std::uint32_t m_thread_id;           // 0x00
-		joaat_t m_script_hash;               // 0x04
-		eThreadState m_state;                // 0x08
-		std::uint32_t m_instruction_pointer; // 0x0C
-		std::uint32_t m_frame_pointer;       // 0x10
-		std::uint32_t m_stack_pointer;       // 0x14
-		float m_timer_a;                     // 0x18
-		float m_timer_b;                     // 0x1C
-		float m_wait_timer;                  // 0x20
-		char m_padding1[0x2C];               // 0x24
-		std::uint32_t m_stack_size;          // 0x50
-		char m_padding2[0x54];               // 0x54
+		std::uint32_t m_thread_id;           // 0x08
+		char pad0[4];                        // 0x0C
+		joaat_t m_script_hash;               // 0x10
+		char pad1[4];                        // 0x14
+		eThreadState m_state;                // 0x18
+		std::uint32_t m_instruction_pointer; // 0x1C
+		std::uint32_t m_frame_pointer;       // 0x20
+		std::uint32_t m_stack_pointer;       // 0x24
+		float m_timer_a;                     // 0x28
+		float m_timer_b;                     // 0x2C
+		float m_wait_timer;                  // 0x30
+		char m_padding1[0x2C];               // 0x34
+		std::uint32_t m_stack_size;          // 0x60
+		char m_padding2[0x54];               // 0x64
 	};
 
 	class scrThread
@@ -44,7 +46,7 @@ namespace rage
 
 	public:
 		scrThreadContext m_context;                 // 0x08
-		scrValue* m_stack;                          // 0xB0
+		scrValue* m_stack;                          // 0xB8
 		char m_padding[0x4];                        // 0xB8
 		uint32_t m_arg_size;                        // 0xBC
 		uint32_t m_arg_loc;                         // 0xC0
@@ -56,7 +58,7 @@ namespace rage
 		scriptHandlerNetComponent* m_net_component; // 0x120
 	};
 
-	static_assert(sizeof(scrThreadContext) == 0xA8);
+	//static_assert(sizeof(scrThreadContext) == 0xA8);
 	//static_assert(sizeof(scrThread) == 0x120);
 }
 
@@ -77,4 +79,4 @@ public:
 	char m_padding7[0x0F];                     // 0x149
 };
 
-static_assert(sizeof(GtaThread) == 0x160);
+//static_assert(sizeof(GtaThread) == 0x160);

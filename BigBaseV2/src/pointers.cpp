@@ -20,7 +20,7 @@ namespace big
 			m_is_session_started = ptr.add(2).rip().as<bool*>();
 		});
 
-		main_batch.add("Ped factory", "48 8B 05 ?? ?? ?? ?? 4B 8D 34 76 48 8B 1C F0", [this](memory::handle ptr)
+		main_batch.add("Ped factory", "48 8B 05 ? ? ? ? 48 8B 40 ? B3", [this](memory::handle ptr)
 		{
 			m_ped_factory = ptr.add(3).rip().as<CPedFactory**>();
 		});
@@ -30,7 +30,7 @@ namespace big
 			m_network_player_mgr = ptr.add(3).rip().as<CNetworkPlayerMgr**>();
 		});
 
-		main_batch.add("Native handlers", "E8 ? ? ? ? 4C 89 E1 E8 ? ? ? ? 48 8D 35 ? ? ? ?", [this](memory::handle ptr)
+		main_batch.add("Init native tables", "E8 ? ? ? ? 4C 89 E1 E8 ? ? ? ? 48 8D 35 ? ? ? ?", [this](memory::handle ptr)
 		{
 				m_init_native_tables = ptr.add(1).rip().as<functions::init_native_tables_t>();
 		});

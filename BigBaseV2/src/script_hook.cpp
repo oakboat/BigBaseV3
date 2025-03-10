@@ -36,8 +36,8 @@ namespace big
 		{
 			for (auto[hash, handler_ptr] : m_native_handler_ptrs)
 			{
-				auto og_handler = g_pointers->m_get_native_handler(g_pointers->m_native_registration_table, hash);
-				*handler_ptr = og_handler;
+				/*auto og_handler = g_pointers->m_get_native_handler(g_pointers->m_native_registration_table, hash);
+				*handler_ptr = og_handler;*/
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace big
 		m_vmt_hook = std::make_unique<vmt_hook>(m_program, 3);
 		m_vmt_hook->hook(0, &scrprogram_dtor);
 
-		for (auto [replacement_hash, replacement_handler] : m_native_replacements)
+		/*for (auto [replacement_hash, replacement_handler] : m_native_replacements)
 		{
 			auto hash = replacement_hash;
 			map_native(&hash);
@@ -85,7 +85,7 @@ namespace big
 
 			m_native_handler_ptrs.emplace(hash, reinterpret_cast<rage::scrNativeHandler*>(handler_ptr));
 			*handler_ptr = replacement_handler;
-		}
+		}*/
 	}
 
 	void script_hook::scrprogram_dtor(rage::scrProgram *this_, bool free_memory)

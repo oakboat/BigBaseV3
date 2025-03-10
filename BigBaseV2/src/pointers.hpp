@@ -20,8 +20,8 @@ namespace big
 		CPedFactory **m_ped_factory{};
 		CNetworkPlayerMgr **m_network_player_mgr{};
 
-		rage::scrNativeRegistrationTable *m_native_registration_table{};
-		functions::get_native_handler_t m_get_native_handler{};
+		/*rage::scrNativeRegistrationTable *m_native_registration_table{};*/
+		/*functions::get_native_handler_t m_get_native_handler{};*/
 		functions::init_native_tables_t m_init_native_tables;
 		/*functions::fix_vectors_t m_fix_vectors{};*/
 
