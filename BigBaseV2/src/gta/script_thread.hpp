@@ -47,19 +47,19 @@ namespace rage
 	public:
 		scrThreadContext m_context;                 // 0x08
 		scrValue* m_stack;                          // 0xB8
-		char m_padding[0x4];                        // 0xB8
-		uint32_t m_arg_size;                        // 0xBC
-		uint32_t m_arg_loc;                         // 0xC0
-		char m_padding2[0x4];                       // 0xC4
-		const char* m_exit_message;                 // 0xC8
-		char m_pad[0x4];                            // 0xD0
-		char m_name[0x40];                          // 0xD4
-		scriptHandler* m_handler;                   // 0x118
-		scriptHandlerNetComponent* m_net_component; // 0x120
+		char m_padding[0x4];                        // 0xC0
+		uint32_t m_arg_size;                        // 0xC4
+		uint32_t m_arg_loc;                         // 0xC8
+		char m_padding2[0x4];                       // 0xCC
+		const char* m_exit_message;                 // 0xD0
+		char m_pad[0x4];                            // 0xD8
+		char m_name[0x40];                          // 0xDC
+		scriptHandler* m_handler;                   // 0x11C
+		scriptHandlerNetComponent* m_net_component; // 0x124
 	};
 
-	//static_assert(sizeof(scrThreadContext) == 0xA8);
-	//static_assert(sizeof(scrThread) == 0x120);
+	static_assert(sizeof(scrThreadContext) == 0xB0);
+	static_assert(sizeof(scrThread) == 0x130);
 }
 
 class GtaThread : public rage::scrThread

@@ -37,8 +37,15 @@ namespace big
 
 		// 读取文件内容
 		while (std::getline(file, line)) {
-			// 检查是否以 $MPX_ / $MP0_ / $MP1_ 开头
-			if (line.rfind("$MPX_", 0) == 0 || line.rfind("$MP0_", 0) == 0 || line.rfind("$MP1_", 0) == 0) {
+			// 转大写
+			std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+			// 跳过 INT32
+			if (line == "INT32")
+			{
+				continue;
+			}
+			// 检查是否以 $MPX_ / $MP0_ / $MP1_ / $MPPLY_ 开头
+			if (line.rfind("$MPX_", 0) == 0 || line.rfind("$MP0_", 0) == 0 || line.rfind("$MP1_", 0) == 0 || line.rfind("$MPPLY_", 0) == 0) {
 				key = line.substr(1);  // 去掉 '$'
 
 				// 替换 "MPX_" 为实际 prefix
