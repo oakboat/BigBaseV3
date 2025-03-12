@@ -19,7 +19,7 @@ namespace big
 		static LRESULT wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 		static BOOL set_cursor_pos(int x, int y);
 
-		static constexpr auto main_persistent_num_funcs = 16;
+		static constexpr auto main_persistent_num_funcs = 32;
 		static constexpr auto main_persistent_dtor_index = 0;
 		static constexpr auto main_persistent_is_networked_index = 6;
 		static void main_persistent_dtor(CGameScriptHandler *this_, bool free_memory);

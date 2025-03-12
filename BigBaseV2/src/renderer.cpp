@@ -87,14 +87,14 @@ namespace big
 				ImGui_ImplWin32_Init(g_pointers->m_hwnd);
 				ImGui_ImplDX12_Init(Device, BuffersCounts, DXGI_FORMAT_R8G8B8A8_UNORM, DescriptorHeapImGuiRender, DescriptorHeapImGuiRender->GetCPUDescriptorHandleForHeapStart(), DescriptorHeapImGuiRender->GetGPUDescriptorHandleForHeapStart());
 				ImGui_ImplDX12_CreateDeviceObjects();
-				ImGui::GetMainViewport()->PlatformHandleRaw = g_pointers->m_hwnd;
+				io.ImeWindowHandle = g_pointers->m_hwnd;
 
 				ImFontConfig font_cfg{};
 				font_cfg.FontDataOwnedByAtlas = false;
 				std::strcpy(font_cfg.Name, "Rubik");
 
-				m_font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(const_cast<std::uint8_t*>(font_rubik), sizeof(font_rubik), 20.f, &font_cfg);
-				m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
+				m_font = io.Fonts->AddFontFromMemoryTTF(const_cast<std::uint8_t*>(font_rubik), sizeof(font_rubik), 20.f, &font_cfg);
+				m_monospace_font = io.Fonts->AddFontDefault();
 
 				g_gui.dx_init();
 			}

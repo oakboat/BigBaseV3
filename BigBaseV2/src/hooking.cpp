@@ -64,7 +64,7 @@ namespace big
 		m_run_script_threads_hook.enable();
 		m_convert_thread_to_fiber_hook.enable();
 		
-		//ensure_dynamic_hooks();
+		ensure_dynamic_hooks();
 		m_enabled = true;
 	}
 

@@ -86,7 +86,7 @@ u8R"kek(                     ...
 					if (GetAsyncKeyState(VK_END) & 0x8000)
 						g_running = false;
 
-					//g_hooking->ensure_dynamic_hooks();
+					g_hooking->ensure_dynamic_hooks();
 					std::this_thread::sleep_for(10ms);
 				}
 

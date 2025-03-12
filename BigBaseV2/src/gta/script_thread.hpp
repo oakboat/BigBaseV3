@@ -52,20 +52,20 @@ namespace rage
 		uint32_t m_arg_loc;                         // 0xC8
 		char m_padding2[0x4];                       // 0xCC
 		const char* m_exit_message;                 // 0xD0
-		char m_pad[0x4];                            // 0xD8
-		char m_name[0x40];                          // 0xDC
-		scriptHandler* m_handler;                   // 0x11C
-		scriptHandlerNetComponent* m_net_component; // 0x124
+		char m_pad[0x7C];                           // 0xD8
+		char m_name[0x44];                          // 0x154
+		scriptHandler* m_handler;                   // 0x198
+		scriptHandlerNetComponent* m_net_component; // 0x1A0
 	};
 
 	static_assert(sizeof(scrThreadContext) == 0xB0);
-	static_assert(sizeof(scrThread) == 0x130);
+	static_assert(sizeof(scrThread) == 0x1A8);
 }
 
 class GtaThread : public rage::scrThread
 {
 public:
-	rage::joaat_t m_script_hash;               // 0x120
+	rage::joaat_t m_script_hash;               // 0x1A8
 	char m_padding3[0x14];                     // 0x124
 	std::int32_t m_instance_id;                // 0x138
 	char m_padding4[0x04];                     // 0x13C

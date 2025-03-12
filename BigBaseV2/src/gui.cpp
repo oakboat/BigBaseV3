@@ -102,14 +102,42 @@ namespace big
 	{
 		if (ImGui::Begin("BigBaseV3"))
 		{
-			static int wanted_level = 0;
 			static bool godemode = false;
-
 			if (ImGui::Checkbox("Godmode", &godemode))
 			{
 				features::set_godmode(godemode);
 			}
+			ImGui::SameLine();
+			if (ImGui::Button("Heal"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						auto ped = PLAYER::PLAYER_PED_ID();
+						auto id = PLAYER::PLAYER_ID();
+						ENTITY::SET_ENTITY_HEALTH(ped, PED::GET_PED_MAX_HEALTH(ped), 0, 0);
+						PED::SET_PED_ARMOUR(ped, PLAYER::GET_PLAYER_MAX_ARMOUR(id));
+					});
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Skip cutscene"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						CUTSCENE::STOP_CUTSCENE_IMMEDIATELY();
+					});
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear Wanted"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						auto id = PLAYER::PLAYER_ID();
+						PLAYER::SET_PLAYER_WANTED_LEVEL(id, 0, FALSE);
+						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(id, FALSE);
+					});
+			}
 
+			static int wanted_level = 0;
 			if (ImGui::SliderInt("Wanted level", &wanted_level, 0, 5))
 			{
 				g_fiber_pool->queue_job([]
@@ -119,12 +147,13 @@ namespace big
 						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(id, FALSE);
 					});
 			}
+			
 
-			if (ImGui::Button("Spawn a vehicle"))
+			if (ImGui::Button("Spawn Kuruma"))
 			{
 				g_fiber_pool->queue_job([]
 					{
-						constexpr auto hash = RAGE_JOAAT("adder");
+						constexpr auto hash = RAGE_JOAAT("kuruma2");
 						while (!STREAMING::HAS_MODEL_LOADED(hash))
 						{
 							STREAMING::REQUEST_MODEL(hash);
@@ -146,7 +175,7 @@ namespace big
 						STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
 					});
 			}
-
+			ImGui::SameLine();
 			if (ImGui::Button("Teleport waypoint"))
 			{
 				g_fiber_pool->queue_job([]
@@ -189,7 +218,7 @@ namespace big
 						PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
 					});
 			}
-
+			ImGui::SameLine();
 			if (ImGui::Button("Teleport objective"))
 			{
 				g_fiber_pool->queue_job([]
@@ -202,38 +231,48 @@ namespace big
 							{
 								auto location = HUD::GET_BLIP_COORDS(blip);
 								PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
-								script::get_current()->yield();
 							}
 							blip = HUD::GET_NEXT_BLIP_INFO_ID(1);
 						}
 					});
-			}
+			}	
 
-			if (ImGui::Button("Heal"))
+			if (ImGui::Button("Complete apartment"))
 			{
 				g_fiber_pool->queue_job([]
 					{
-						auto ped = PLAYER::PLAYER_PED_ID();
-						auto id = PLAYER::PLAYER_ID();
-						ENTITY::SET_ENTITY_HEALTH(ped, PED::GET_PED_MAX_HEALTH(ped), 0, 0);
-						PED::SET_PED_ARMOUR(ped, PLAYER::GET_PLAYER_MAX_ARMOUR(id));
+						auto id = 0;
+						STATS::STAT_GET_INT(rage::joaat("MPPLY_LAST_MP_CHAR"), &id, -1);
+						std::string prefix = "MP" + std::to_string(id) + "_";
+						STATS::STAT_SET_INT(rage::joaat(prefix + "HEIST_PLANNING_STAGE"), -1, true);
 					});
 			}
 
-			if (ImGui::Button("Skip cutscene"))
+			static char apartment_cuts[100]{ 0 };
+			ImGui::InputText("", apartment_cuts, IM_ARRAYSIZE(apartment_cuts), ImGuiInputTextFlags_CharsDecimal);
+			ImGui::SameLine();
+			if (ImGui::Button("Apartment cuts"))
 			{
 				g_fiber_pool->queue_job([]
 					{
-						CUTSCENE::STOP_CUTSCENE_IMMEDIATELY();
+						int cuts = atoi(apartment_cuts);
+						*big::script_global(1929796 + 0).as<int*>() = cuts * -4 + 100;
+						*big::script_global(1929796 + 1).as<int*>() = cuts;
+						*big::script_global(1929796 + 2).as<int*>() = cuts;
+						*big::script_global(1929796 + 3).as<int*>() = cuts;
+						PAD::SET_CURSOR_POSITION(0.775, 0.175);
+						PAD::SET_CONTROL_VALUE_NEXT_FRAME(0, 237, 1);
+						PAD::SET_CONTROL_VALUE_NEXT_FRAME(2, 202, 1);
+						script::get_current()->yield(500ms);
+						*big::script_global(1934771 + 0).as<int*>() = cuts;
 					});
 			}
+
+			ImGui::Separator();
 
 			if (ImGui::Button("Apply stats file"))
 			{
-				g_fiber_pool->queue_job([]
-					{
-						features::apply_stats_file();
-					});
+				features::apply_stats_file();
 			}
 
 			static char global[100]{ 0 };

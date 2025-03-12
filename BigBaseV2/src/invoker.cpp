@@ -37,6 +37,7 @@ namespace big
 		{
 			auto& mapping = g_crossmap[i];
 			m_handler_cache.emplace(mapping.first, reinterpret_cast<rage::scrNativeHandler>(hashcache.data[i]));
+			//LOG_INFO("{:X}\t\t{:X}", (uint64_t)mapping.first, (uint64_t)hashcache.data[i]);
 		}
 
 		delete[] hashcache.data;
