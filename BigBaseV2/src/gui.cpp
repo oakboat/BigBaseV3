@@ -247,6 +247,12 @@ namespace big
 						STATS::STAT_SET_INT(rage::joaat(prefix + "HEIST_PLANNING_STAGE"), -1, true);
 					});
 			}
+			ImGui::SameLine();
+			static bool twoplayers = false;
+			ImGui::Checkbox("Two players", &twoplayers);
+			ImGui::SameLine();
+			static bool nocuts = false;
+			ImGui::Checkbox("No cuts", &nocuts);
 
 			static char apartment_cuts[100]{ 0 };
 			ImGui::InputText("", apartment_cuts, IM_ARRAYSIZE(apartment_cuts), ImGuiInputTextFlags_CharsDecimal);
@@ -256,15 +262,38 @@ namespace big
 				g_fiber_pool->queue_job([]
 					{
 						int cuts = atoi(apartment_cuts);
-						*big::script_global(1929796 + 0).as<int*>() = cuts * -4 + 100;
-						*big::script_global(1929796 + 1).as<int*>() = cuts;
-						*big::script_global(1929796 + 2).as<int*>() = cuts;
-						*big::script_global(1929796 + 3).as<int*>() = cuts;
+						if (twoplayers)
+						{
+							*big::script_global(1929796 + 0).as<int*>() = cuts * -2 + 100;
+						}
+						else
+						{
+							*big::script_global(1929796 + 0).as<int*>() = cuts * -4 + 100;
+						}
+						if (twoplayers)
+						{
+							*big::script_global(1929796 + 1).as<int*>() = cuts;
+							*big::script_global(1929796 + 2).as<int*>() = 0;
+							*big::script_global(1929796 + 3).as<int*>() = 0;
+						}
+						else
+						{
+							*big::script_global(1929796 + 1).as<int*>() = cuts;
+							*big::script_global(1929796 + 2).as<int*>() = cuts;
+							*big::script_global(1929796 + 3).as<int*>() = cuts;
+						}
 						PAD::SET_CURSOR_POSITION(0.775, 0.175);
 						PAD::SET_CONTROL_VALUE_NEXT_FRAME(0, 237, 1);
 						PAD::SET_CONTROL_VALUE_NEXT_FRAME(2, 202, 1);
 						script::get_current()->yield(500ms);
-						*big::script_global(1934771 + 0).as<int*>() = cuts;
+						if (nocuts)
+						{
+							*big::script_global(1934771 + 0).as<int*>() = 0;
+						}
+						else
+						{
+							*big::script_global(1934771 + 0).as<int*>() = cuts;
+						}
 					});
 			}
 
