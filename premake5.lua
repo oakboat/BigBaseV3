@@ -16,7 +16,7 @@ workspace "BigBaseV2"
   IncludeDir["json"] = "vendor/json/single_include"
   IncludeDir["MinHook"] = "vendor/MinHook/include"
   IncludeDir["ImGui"] = "vendor/ImGui"
-  IncludeDir["ImGuiImpl"] = "vendor/ImGui/examples"
+  IncludeDir["ImGuiImpl"] = "vendor/ImGui/backends"
   IncludeDir["StackWalker"] = "vendor/StackWalker/Main/StackWalker/"
   
   CppVersion = "C++17"
@@ -29,6 +29,7 @@ workspace "BigBaseV2"
     systemversion (WindowsSdkVersion)
     toolset (MsvcToolset)
     cppdialect (CppVersion)
+    buildoptions { "/utf-8" }
 
     defines
     {
@@ -64,12 +65,9 @@ workspace "BigBaseV2"
     
     files
     {
-      "vendor/%{prj.name}/imgui.cpp",
-      "vendor/%{prj.name}/imgui_demo.cpp",
-      "vendor/%{prj.name}/imgui_draw.cpp",
-      "vendor/%{prj.name}/imgui_widgets.cpp",
-      "vendor/%{prj.name}/examples/imgui_impl_dx11.cpp",
-      "vendor/%{prj.name}/examples/imgui_impl_win32.cpp"
+      "vendor/%{prj.name}/*.cpp",
+      "vendor/%{prj.name}/backends/imgui_impl_dx12.cpp",
+      "vendor/%{prj.name}/backends/imgui_impl_win32.cpp"
     }
 
     includedirs
@@ -91,14 +89,15 @@ workspace "BigBaseV2"
     files
     {
       "vendor/%{prj.name}/include/**.h",
-      "vendor/%{prj.name}/src/**.cc"
+      "vendor/%{prj.name}/src/format.cc",
+      "vendor/%{prj.name}/src/os.cc"
     }
 
     includedirs
     {
       "vendor/%{prj.name}/include"
     }
-
+    
     DeclareMSVCOptions()
     DeclareDebugOptions()
 
@@ -154,6 +153,7 @@ workspace "BigBaseV2"
  
     files
     {
+      "%{prj.name}/src/**.h",
       "%{prj.name}/src/**.hpp",
       "%{prj.name}/src/**.cpp",
       "%{prj.name}/src/**.asm"

@@ -87,7 +87,7 @@ namespace big
 				ImGui_ImplWin32_Init(g_pointers->m_hwnd);
 				ImGui_ImplDX12_Init(Device, BuffersCounts, DXGI_FORMAT_R8G8B8A8_UNORM, DescriptorHeapImGuiRender, DescriptorHeapImGuiRender->GetCPUDescriptorHandleForHeapStart(), DescriptorHeapImGuiRender->GetGPUDescriptorHandleForHeapStart());
 				ImGui_ImplDX12_CreateDeviceObjects();
-				ImGui::GetIO().ImeWindowHandle = g_pointers->m_hwnd;
+				ImGui::GetMainViewport()->PlatformHandleRaw = g_pointers->m_hwnd;
 
 				ImFontConfig font_cfg{};
 				font_cfg.FontDataOwnedByAtlas = false;

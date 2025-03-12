@@ -13,7 +13,7 @@
 #include "script_mgr.hpp"
 
 #include <MinHook.h>
-#include <kiero.h>
+#include "kiero.h"
 
 namespace big
 {
