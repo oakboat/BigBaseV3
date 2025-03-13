@@ -11,6 +11,7 @@
 #include "renderer.hpp"
 #include "script.hpp"
 #include "features.hpp"
+#include "unlock.hpp"
 
 #include <imgui.h>
 #include <StackWalker.h>
@@ -231,11 +232,14 @@ namespace big
 							{
 								auto location = HUD::GET_BLIP_COORDS(blip);
 								PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
+								script::get_current()->yield();
 							}
 							blip = HUD::GET_NEXT_BLIP_INFO_ID(1);
 						}
 					});
 			}	
+
+			ImGui::Separator();
 
 			if (ImGui::Button("Complete apartment"))
 			{
@@ -255,9 +259,9 @@ namespace big
 			ImGui::Checkbox("No cuts", &nocuts);
 
 			static char apartment_cuts[100]{ 0 };
-			ImGui::InputText("", apartment_cuts, IM_ARRAYSIZE(apartment_cuts), ImGuiInputTextFlags_CharsDecimal);
-			ImGui::SameLine();
-			if (ImGui::Button("Apartment cuts"))
+			ImGui::InputText("Apartment cuts", apartment_cuts, IM_ARRAYSIZE(apartment_cuts), ImGuiInputTextFlags_CharsDecimal);
+
+			if (ImGui::Button("Set apartment cuts"))
 			{
 				g_fiber_pool->queue_job([]
 					{
@@ -299,23 +303,85 @@ namespace big
 
 			ImGui::Separator();
 
+			if (ImGui::Button("Complete cayo perico"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						auto id = 0;
+						STATS::STAT_GET_INT(rage::joaat("MPPLY_LAST_MP_CHAR"), &id, -1);
+						std::string prefix = "MP" + std::to_string(id) + "_";
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_BS_GEN"), 131071, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_BS_ENTR"), 63, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_BS_ABIL"), 63, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_WEAPONS"), 1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_WEP_DISRP"), 3, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_ARM_DISRP"), 3, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_HEL_DISRP"), 3, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_TARGET"), 5, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_TROJAN"), 2, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4CNF_APPROACH"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_CASH_I"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_CASH_C"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_WEED_I"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_WEED_C"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_COKE_I"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_COKE_C"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_GOLD_I"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_GOLD_C"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_PAINT"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4_PROGRESS"), 126823, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_CASH_I_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_CASH_C_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_WEED_I_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_WEED_C_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_COKE_I_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_COKE_C_SCOPED"), 0, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_GOLD_I_SCOPED"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_GOLD_C_SCOPED"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4LOOT_PAINT_SCOPED"), -1, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4_MISSIONS"), 65535, true);
+						STATS::STAT_SET_INT(rage::joaat(prefix + "H4_PLAYTHROUGH_STATUS"), 10, true);
+					});
+			}
+
+			static char cayo_cuts[100]{ 0 };
+			ImGui::InputText("Cayo cuts", cayo_cuts, IM_ARRAYSIZE(cayo_cuts), ImGuiInputTextFlags_CharsDecimal);
+
+			if (ImGui::Button("Set cayo cuts"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						int cuts = atoi(cayo_cuts);
+						*big::script_global(1974584 + 0).as<int*>() = cuts;
+						*big::script_global(1974584 + 1).as<int*>() = cuts;
+						*big::script_global(1974584 + 2).as<int*>() = cuts;
+						*big::script_global(1974584 + 3).as<int*>() = cuts;
+					});
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::Button("Unlock all"))
+			{
+				unlock::unlock_all();
+			}
+			ImGui::SameLine();
 			if (ImGui::Button("Apply stats file"))
 			{
 				features::apply_stats_file();
 			}
 
-			static char global[100]{ 0 };
-			static char value[100]{ 0 };
-			ImGui::InputText("Global index", global, IM_ARRAYSIZE(global), ImGuiInputTextFlags_CharsDecimal);
-			ImGui::InputText("Global value", value, IM_ARRAYSIZE(value), ImGuiInputTextFlags_CharsDecimal);
+			static char global_index[100]{ 0 };
+			static char global_value[100]{ 0 };
+			ImGui::InputText("Global index", global_index, IM_ARRAYSIZE(global_index), ImGuiInputTextFlags_CharsDecimal);
+			ImGui::InputText("Global value", global_value, IM_ARRAYSIZE(global_value), ImGuiInputTextFlags_CharsDecimal);
 			if (ImGui::Button("Set global"))
 			{
 				g_fiber_pool->queue_job([]
 					{
-						*big::script_global(atoi(global)).as<int*>() = atoi(value);
+						*big::script_global(atoi(global_index)).as<int*>() = atoi(global_value);
 					});
 			}
-
 
 			ImGui::Separator();
 

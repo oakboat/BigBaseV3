@@ -8,7 +8,6 @@
 
 namespace big
 {
-	static int wanted_level;
 	static bool godemode = false;
 	static bool godemoderest = false;
 	static std::unordered_map<std::string, int> intStats;
