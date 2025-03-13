@@ -232,9 +232,9 @@ namespace big
 							{
 								auto location = HUD::GET_BLIP_COORDS(blip);
 								PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
-								script::get_current()->yield();
 							}
 							blip = HUD::GET_NEXT_BLIP_INFO_ID(1);
+							script::get_current()->yield();
 						}
 					});
 			}	
