@@ -234,7 +234,6 @@ namespace big
 								PED::SET_PED_COORDS_KEEP_VEHICLE(PLAYER::PLAYER_PED_ID(), location.x, location.y, location.z + 1.f);
 							}
 							blip = HUD::GET_NEXT_BLIP_INFO_ID(1);
-							script::get_current()->yield();
 						}
 					});
 			}	
@@ -352,10 +351,10 @@ namespace big
 				g_fiber_pool->queue_job([]
 					{
 						int cuts = atoi(cayo_cuts);
-						*big::script_global(1974584 + 0).as<int*>() = cuts;
-						*big::script_global(1974584 + 1).as<int*>() = cuts;
-						*big::script_global(1974584 + 2).as<int*>() = cuts;
-						*big::script_global(1974584 + 3).as<int*>() = cuts;
+						*big::script_global(1973698 + 831 + 56 + 1 + 0).as<int*>() = cuts;
+						*big::script_global(1973698 + 831 + 56 + 1 + 1).as<int*>() = cuts;
+						*big::script_global(1973698 + 831 + 56 + 1 + 2).as<int*>() = cuts;
+						*big::script_global(1973698 + 831 + 56 + 1 + 3).as<int*>() = cuts;
 					});
 			}
 
@@ -369,6 +368,16 @@ namespace big
 			if (ImGui::Button("Apply stats file"))
 			{
 				features::apply_stats_file();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Story mode"))
+			{
+				g_fiber_pool->queue_job([]
+					{
+						*big::script_global(1574589).as<int*>() = 1;
+						script::get_current()->yield(100ms);
+						*big::script_global(1574589).as<int*>() = 0;
+					});
 			}
 
 			static char global_index[100]{ 0 };

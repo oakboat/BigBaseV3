@@ -15,14 +15,12 @@ namespace big::unlock
 		for (int i = from; i <= to; ++i) {
 			STATS::SET_PACKED_STAT_BOOL_CODE(i, true, char_index);
 			LOG_INFO("Unlocked packed bool for index {}", i);
-			script::get_current()->yield();
 		}
 	}
 
 	void set_packed_stat_int(int stat, int value) {
 		STATS::SET_PACKED_STAT_INT_CODE(stat, value, char_index);
 		LOG_INFO("Set packed stat int for stat {} with value {}", stat, value);
-		script::get_current()->yield();
 	}
 
 	static void set_int(std::string stat_name, int value)
@@ -34,7 +32,6 @@ namespace big::unlock
 		}
 		STATS::STAT_SET_INT(rage::joaat(stat_name), value, true);
 		LOG_INFO("Set int for stat {} to value {}", stat_name, value);
-		script::get_current()->yield();
 	}
 
 	static void set_bool(std::string stat_name, BOOL value)
@@ -46,7 +43,6 @@ namespace big::unlock
 		}
 		STATS::STAT_SET_BOOL(rage::joaat(stat_name), value, true);
 		LOG_INFO("Set bool for stat {} to value {}", stat_name, value);
-		script::get_current()->yield();
 	}
 
 	static void set_float(std::string stat_name, float value)
@@ -58,7 +54,6 @@ namespace big::unlock
 		}
 		STATS::STAT_SET_FLOAT(rage::joaat(stat_name), value, true);
 		LOG_INFO("Set float for stat {} to value {}", stat_name, value);
-		script::get_current()->yield();
 	}
 
 	static int get_int(std::string stat_name)
